@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+psycopg[binary]
+passlib[bcrypt]
+python-docx
+openpyxl
+python-multipart
+pydantic
