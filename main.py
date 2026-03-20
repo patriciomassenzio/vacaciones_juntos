@@ -16,7 +16,11 @@ from crud_usuarios import crear_usuario, login_usuario
 from crud_saldos import validar_saldo_en_db, obtener_saldos_por_dni
 from validaciones import validar_fechas
 
-app = FastAPI()
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 app.add_middleware(
     CORSMiddleware,

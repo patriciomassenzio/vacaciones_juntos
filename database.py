@@ -3,15 +3,13 @@ import psycopg
 
 def conectar():
     try:
-        conexion = psycopg.connect(
-            host=os.getenv("DB_HOST"),
-            dbname=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT", "5432"),
-        )
-        return conexion
+        db_url = os.getenv("DATABASE_URL")
+
+        if not db_url:
+            raise Exception("DATABASE_URL no está definida")
+
+        return psycopg.connect(db_url)
+
     except Exception as e:
-        print("❌ ERROR DE CONEXIÓN:")
-        print(e)
+        print("❌ ERROR DE CONEXIÓN:", e)
         raise e
