@@ -11,5 +11,6 @@ def conectar():
         return psycopg.connect(db_url)
 
     except Exception as e:
-        print("❌ ERROR DE CONEXIÓN:", e)
+        print("❌ ERROR DE CONEXIÓN:")
+        print(e)
         raise e

@@ -91,15 +91,7 @@ def obtener_saldos_por_dni(dni):
     ]
 
 def validar_saldo_en_db(dni, dias_solicitados, periodo_mencionado=None):
-    # 🔥 MODO DEMO
-
-    if dni != "12345678":
-        return False, "No encontré saldo vacacional cargado para ese DNI.", None
-
-    if dias_solicitados > 10:
-        return False, "No tenés saldo suficiente. Máximo disponible: 10 días.", None
-
-    return True, "Saldo validado correctamente. Tenés días disponibles.", "2025-2026"
+    saldos = obtener_saldos_por_dni(dni)
 
     if not saldos:
         return False, "No encontré saldo vacacional cargado para ese DNI.", None

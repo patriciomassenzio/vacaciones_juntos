@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 from datetime import datetime, date
 from openpyxl import load_workbook
+
 from crud_saldos import reemplazar_todos_los_saldos
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -39,6 +40,9 @@ def dias_inclusivos(desde, hasta):
     return (hasta - desde).days + 1
 
 def leer_registros_archivo(path_archivo):
+    if not path_archivo.exists():
+        raise FileNotFoundError(f"No encontré el archivo Excel: {path_archivo}")
+
     wb = load_workbook(path_archivo, data_only=True)
 
     if "UTAB" not in wb.sheetnames:
@@ -70,8 +74,10 @@ def leer_registros_archivo(path_archivo):
         registros.append({
             "dni": dni_norm,
             "nombres": str(nombre).strip() if nombre else "",
-            "periodo": str(periodo).strip() if periodo else "",
-            "dias": total_dias,
+            "periodo_vacacional": str(periodo).strip() if periodo else "",
+            "dias_maximos": DIAS_MAXIMOS_POR_PERIODO,
+            "dias_usados": total_dias,
+            "saldo_disponible": 0,
             "fuente_archivo": path_archivo.name
         })
 
@@ -87,20 +93,20 @@ def agrupar_saldos():
         registros = leer_registros_archivo(archivo)
 
         for r in registros:
-            clave = (r["dni"], r["periodo"])
+            clave = (r["dni"], r["periodo_vacacional"])
 
             if clave not in agrupado:
                 agrupado[clave] = {
                     "dni": r["dni"],
                     "nombres": r["nombres"],
-                    "periodo_vacacional": r["periodo"],
+                    "periodo_vacacional": r["periodo_vacacional"],
                     "dias_maximos": DIAS_MAXIMOS_POR_PERIODO,
                     "dias_usados": 0,
                     "saldo_disponible": 0,
                     "fuente_archivo": r["fuente_archivo"]
                 }
 
-            agrupado[clave]["dias_usados"] += r["dias"]
+            agrupado[clave]["dias_usados"] += r["dias_usados"]
 
     for clave in agrupado:
         usados = agrupado[clave]["dias_usados"]
@@ -108,10 +114,17 @@ def agrupar_saldos():
 
     return list(agrupado.values())
 
-def main():
+def importar_saldos():
     saldos = agrupar_saldos()
     reemplazar_todos_los_saldos(saldos)
-    print(f"✅ Se importaron {len(saldos)} saldos vacacionales.")
+    return {
+        "ok": True,
+        "mensaje": f"Se importaron {len(saldos)} saldos vacacionales."
+    }
+
+def main():
+    resultado = importar_saldos()
+    print(f"✅ {resultado['mensaje']}")
 
 if __name__ == "__main__":
     main()
